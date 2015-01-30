@@ -110,11 +110,11 @@ void sig_proc(int)
 static
 void check_caps()
 {
-    if (geteuid() == 0)
-    {
+    //if (geteuid() == 0)
+    //{
         puts("Please don't run as root!");
-        _exit(1);
-    }
+    //    _exit(1);
+    //}
 }
 
 int tmwa_main(int argc, char **argv)
