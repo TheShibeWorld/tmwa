@@ -78,8 +78,8 @@
 #include "tmw.hpp"
 #include "trade.hpp"
 
-#include "../poison.hpp"
-
+//#include "../poison.hpp"
+#include "../doge/utility.hpp"
 
 namespace tmwa
 {
@@ -400,6 +400,102 @@ void atc_do_help(Session *s, ZString cmd, const AtCommandInfo& info)
     if (level >= 100)
         ++ll;
     clif_displaymessage(s, msg.xslice_t((ll - 1) * 3));
+}
+
+static
+ATCE atcommand_doge(Session *s, dumb_ptr<map_session_data> sd,
+                    ZString message)
+{
+    if (!message || message.startswith("help"_s))
+    {
+        clif_displaymessage(s, "Commands:"_s);
+        clif_displaymessage(s, "@doge help"_s);
+        clif_displaymessage(s, "@doge balance"_s);
+        clif_displaymessage(s, "@doge deposit"_s);
+        clif_displaymessage(s, "@doge withdraw <address> <amount>"_s);
+        clif_displaymessage(s, "@doge tip <character name> <amount>"_s);
+        return ATCE::OKAY;
+    }
+    /*
+    if (message.startswith("getgold"_s))
+    {
+    pc_getzeny(sd,100);
+    }
+    */
+    if (message.startswith("balance"_s))
+    {
+        string character = map_charid2nick(sd->char_id_).to__lower().c_str();
+        clif_displaymessage(s,"shibe balance:"_s);
+        clif_displaymessage(s,STRPRINTF("%s"_fmt,(char*)dogeBalance(character).c_str()));
+        return ATCE::OKAY;
+    }
+    if (message.startswith("deposit"_s))
+    {
+        string character = map_charid2nick(sd->char_id_).to__lower().c_str();
+        clif_displaymessage(s,STRPRINTF("%s"_fmt,"deposit much doges here:"_s));
+        clif_displaymessage(s,STRPRINTF("%s"_fmt,(char*)dogeDeposit(character).c_str()));
+        return ATCE::OKAY;
+    }
+    if (message.startswith("withdraw"_s))
+    {
+        XString command;
+        ZString params;
+        XString address;
+        ZString amount;
+        if (!asplit(message, &command, &params))
+        {
+            clif_displaymessage(s, "Such error"_s);
+            return ATCE::OKAY;
+        }
+        if (asplit(params, &address, &amount))
+        {
+            if(address == ""_s || amount == ""_s)
+            {
+                clif_displaymessage(s, "usage: @doge withdraw <address> <amount>"_s);
+                return ATCE::OKAY;
+            }
+        }
+        else
+        {
+            clif_displaymessage(s, "Such error"_s);
+            return ATCE::OKAY;
+        }
+        string character_str = map_charid2nick(sd->char_id_).to__lower().c_str();
+        int amount_int = atoi(amount.c_str());
+        string address_str = ((AString)address).c_str();
+        clif_displaymessage(s,STRPRINTF("%s"_fmt,(char*)dogeWithdraw(character_str,amount_int,address_str).c_str()));
+        return ATCE::OKAY;
+    }
+    if (message.startswith("tip"_s))
+    {
+        XString command;
+        ZString params;
+        XString character;
+        ZString amount;
+        if (!asplit(message, &command, &params))
+        {
+            clif_displaymessage(s, "Such error"_s);
+            return ATCE::OKAY;
+        }
+        if (asplit(params, &character, &amount))
+        {
+            if(character == ""_s || amount == ""_s)
+            {
+                clif_displaymessage(s, "usage: @doge tip <character name> <amount>"_s);
+                return ATCE::OKAY;
+            }
+        }
+        else
+        {
+            clif_displaymessage(s, "Such error"_s);
+        }
+        string character_str = map_charid2nick(sd->char_id_).to__lower().c_str();
+        int amount_int = atoi(amount.c_str());
+        string character_to_str = ((AString)character).c_str();
+        clif_displaymessage(s,STRPRINTF("%s"_fmt,(char*)dogeTip(character_str,amount_int,character_to_str).c_str()));
+        return ATCE::OKAY;
+    }
+    return ATCE::OKAY;
 }
 
 static
@@ -4930,6 +5026,9 @@ ATCE atcommand_source(Session *s, dumb_ptr<map_session_data>,
 // declared extern above
 Map<XString, AtCommandInfo> atcommand_info =
 {
+    {"doge"_s, {"<command>"_s,
+    0, atcommand_doge,
+    "Such Dogecoin transaccions."_s}},
     {"help"_s, {"[level[-level]|category|@command]"_s,
         0, atcommand_help,
         "Show help"_s}},
