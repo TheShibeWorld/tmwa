@@ -772,6 +772,11 @@ int pc_authok(AccountId id, int login_id2,
 
     pc_calcstatus(sd, 1);
 
+    //Ugly hardcoded auto die when login into the doge arena
+    dumb_ptr<map_session_data> pl_sd = sd->status_key.name.to__actual() ? map_nick2sd(sd->status_key.name) : sd;
+    if(pl_sd->mapname_ == "doge-arena"_s)
+        pc_damage(nullptr, pl_sd, pl_sd->status.hp + 1);
+
     return 0;
 }
 

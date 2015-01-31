@@ -59,7 +59,8 @@
 #include "skill.hpp"
 #include "storage.hpp"
 
-#include "../poison.hpp"
+//#include "../poison.hpp"
+#include "../doge/utility.hpp"
 
 
 namespace tmwa
@@ -434,6 +435,51 @@ void builtin_percentheal(ScriptState *st)
     hp = conv_num(st, &AARG(0));
     sp = conv_num(st, &AARG(1));
     pc_percentheal(script_rid2sd(st), hp, sp);
+}
+
+/*==========================================
+ *
+ *------------------------------------------
+ */
+
+static void builtin_dogeTip(ScriptState *st)
+{
+    script_data& scrd = AARG(0);
+    SIR reg = scrd.get_if<ScriptDataVariable>()->reg;
+    RString character_from = conv_str(st, &AARG(1));
+    int amount = conv_num(st, &AARG(2));
+    RString character_to = conv_str(st, &AARG(3));
+    string return_str = dogeTip(character_from.c_str(), amount, character_to.c_str());
+    set_reg(script_rid2sd(st), VariableCode::VARIABLE, reg, (RString)toMString(return_str));
+}
+
+static void builtin_dogeDeposit(ScriptState *st)
+{
+    script_data& scrd = AARG(0);
+    SIR reg = scrd.get_if<ScriptDataVariable>()->reg;
+    RString character = conv_str(st, &AARG(1));
+    string return_str = dogeDeposit(character.c_str());
+    set_reg(script_rid2sd(st), VariableCode::VARIABLE, reg, (RString)toMString(return_str));
+}
+
+static void builtin_dogeBalance(ScriptState *st)
+{
+    script_data& scrd = AARG(0);
+    SIR reg = scrd.get_if<ScriptDataVariable>()->reg;
+    RString character = conv_str(st, &AARG(1));
+    string return_str = dogeBalance(character.c_str());
+    set_reg(script_rid2sd(st), VariableCode::VARIABLE, reg, (RString)toMString(return_str));
+}
+
+static void builtin_dogeWithdraw(ScriptState *st)
+{
+    script_data& scrd = AARG(0);
+    SIR reg = scrd.get_if<ScriptDataVariable>()->reg;
+    RString character = conv_str(st, &AARG(1));
+    int amount = conv_num(st, &AARG(2));
+    RString address = conv_str(st, &AARG(3));
+    string return_str = dogeWithdraw(character.c_str(), amount, address.c_str());
+    set_reg(script_rid2sd(st), VariableCode::VARIABLE, reg, (RString)toMString(return_str));
 }
 
 /*==========================================
@@ -2993,6 +3039,10 @@ BuiltinFunction builtin_functions[] =
     BUILTIN(heal, "ii"_s, '\0'),
     BUILTIN(itemheal, "ii"_s, '\0'),
     BUILTIN(percentheal, "ii"_s, '\0'),
+    BUILTIN(dogeTip, "ssis"_s, '\0'),
+    BUILTIN(dogeDeposit, "ss"_s, '\0'),
+    BUILTIN(dogeBalance, "ss"_s, '\0'),
+    BUILTIN(dogeWithdraw, "ssis"_s, '\0'),
     BUILTIN(input, "N"_s, '\0'),
     BUILTIN(if, "iF*"_s, '\0'),
     BUILTIN(set, "Ne"_s, '\0'),
