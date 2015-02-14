@@ -67,6 +67,8 @@
 
 #include "../poison.hpp"
 
+#include "../io/extract.hpp"
+#include "../high/extract_mmo.hpp"
 
 namespace tmwa
 {
@@ -775,7 +777,11 @@ int pc_authok(AccountId id, int login_id2,
     //Ugly hardcoded auto die when login into the doge arena
     dumb_ptr<map_session_data> pl_sd = sd->status_key.name.to__actual() ? map_nick2sd(sd->status_key.name) : sd;
     if(pl_sd->mapname_ == "doge-arena"_s)
-        pc_damage(nullptr, pl_sd, pl_sd->status.hp + 1);
+		{
+			MapName map_name;
+	    extract("doge-spawn"_s, &map_name);
+		  pc_setpos(sd, map_name, sd->status.last_point.x, sd->status.last_point.y, BeingRemoveWhy::GONE);
+		}
 
     return 0;
 }
